@@ -21,31 +21,31 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchBlogs();
+    // _fetchBlogs();
   }
 
-  Future<void> _fetchBlogs() async {
-    try {
-      final QueryResult result = await GraphQLService.client
-          .query(QueryOptions(document: gql(fetchAllBlogs)));
-      if (result.hasException) {
-        setState(() {
-          _error = result.exception;
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _blogs = result.data!['allBlogPosts'];
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _error = e;
-        _isLoading = false;
-      });
-    }
-  }
+  // Future<void> _fetchBlogs() async {
+  //   try {
+  //     final QueryResult result = await GraphQLService.client
+  //         .query(QueryOptions(document: gql(fetchAllBlogs)));
+  //     if (result.hasException) {
+  //       setState(() {
+  //         _error = result.exception;
+  //         _isLoading = false;
+  //       });
+  //     } else {
+  //       setState(() {
+  //         _blogs = result.data!['allBlogPosts'];
+  //         _isLoading = false;
+  //       });
+  //     }
+  //   } catch (e) {
+  //     setState(() {
+  //       _error = e;
+  //       _isLoading = false;
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -56,6 +56,7 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
             'Blog Posts',
             style: TextStyle(
               fontSize: 25,
+              fontWeight: FontWeight.w500,
             ),
           ),
           centerTitle: true,
@@ -74,6 +75,7 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
             'Blog Posts',
             style: TextStyle(
               fontSize: 25,
+              fontWeight: FontWeight.w500,
             ),
           ),
           centerTitle: true,
@@ -88,13 +90,11 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
       appBar: AppBar(
         title: Text(
           'Blog Posts',
-          style: TextStyle(
-            fontSize: 25,
-          ),
+          style: TextStyle(fontSize: 25, fontWeight: FontWeight.w500),
         ),
         centerTitle: true,
       ),
-      body: _buildBlogList(context),
+      body: _buildBody(),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.push(
@@ -113,7 +113,49 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
     );
   }
 
+  Widget _buildBody() {
+    if (_isLoading) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    } else if (_error != null) {
+      final errorMessage = ErrorHandlerException.getErrorMessage(_error);
+      return Center(
+        child: Text('Error: $errorMessage'),
+      );
+    } else {
+      return Query(
+        options: QueryOptions(
+          document: gql(fetchAllBlogs),
+        ),
+        builder: (QueryResult result,
+            {VoidCallback? refetch, FetchMore? fetchMore}) {
+          if (result.isLoading) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (result.hasException) {
+            setState(() {
+              _error = result.exception;
+            });
+            return Center(
+              child: Text('Error: ${result.exception.toString()}'),
+            );
+          } else {
+            _blogs = result.data!['allBlogPosts'];
+            print(_blogs.toString());
+            return _buildBlogList(context);
+          }
+        },
+      );
+    }
+  }
+
   Widget _buildBlogList(BuildContext context) {
+    setState(() {
+      // _error = result.exception;
+      _isLoading = false;
+    });
     return Padding(
       padding: const EdgeInsets.only(
         left: 25.0,
@@ -125,39 +167,48 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
         itemBuilder: (context, index) {
           final blog = _blogs[index];
           return Card(
-            child: ListTile(
-              title: Text(blog['title']),
-              subtitle: Text(blog['subTitle']),
-              trailing: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.edit),
-                    onPressed: () {
-                      _navigateToUpdateBlog(context, blog);
-                    },
+            child: Container(
+              child: ListTile(
+                title: Text(
+                  blog['title'],
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w400,
                   ),
-                  IconButton(
-                    icon: Icon(Icons.delete),
-                    onPressed: () {
-                      _deleteBlog(blog['id']);
-                    },
+                ),
+                subtitle: Text(
+                  blog['subTitle'],
+                  style: TextStyle(
+                    fontSize: 12,
                   ),
-                ],
-              ),
-              onTap: () {
-                // Navigate to blog details screen
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => BlogDetailScreen(
-                      title: blog['title'],
-                      subTitle: blog['subTitle'],
-                      body: blog['body'],
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.edit, size: 20, color: Colors.blue),
+                      onPressed: () => _navigateToUpdateBlog(context, blog),
                     ),
-                  ),
-                );
-              },
+                    IconButton(
+                      icon: Icon(Icons.delete, size: 20, color: Colors.red),
+                      onPressed: () => _deleteBlog(blog['id']),
+                    ),
+                  ],
+                ),
+                onTap: () {
+                  // Navigate to blog details screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BlogDetailScreen(
+                        title: blog['title'],
+                        subTitle: blog['subTitle'],
+                        body: blog['body'],
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
           );
         },

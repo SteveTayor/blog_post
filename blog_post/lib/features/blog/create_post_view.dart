@@ -38,35 +38,57 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
         centerTitle: true,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(25.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Text(
+            //   'Title',
+            //   style: TextStyle(
+            //     fontSize: 16,
+            //   ),
+            // ),
+            // SizedBox(height: 5),
             TextField(
               controller: _titleController,
               decoration: InputDecoration(labelText: 'Title'),
             ),
             SizedBox(height: 16.0),
+            // Text(
+            //   'Subtitle',
+            //   style: TextStyle(
+            //     fontSize: 16,
+            //   ),
+            // ),
+            // SizedBox(height: 5),
             TextField(
               controller: _subTitleController,
               decoration: InputDecoration(labelText: 'Subtitle'),
             ),
             SizedBox(height: 16.0),
+            // Text(
+            //   'Message',
+            //   style: TextStyle(
+            //     fontSize: 16,
+            //   ),
+            // ),
+            SizedBox(height: 5),
             TextField(
               controller: _bodyController,
-              decoration: InputDecoration(labelText: 'Body'),
+              decoration: InputDecoration(labelText: 'Message'),
               maxLines: null,
             ),
             SizedBox(height: 16.0),
             _isLoading
-                ? CircularProgressIndicator()
+                ? Center(child: CircularProgressIndicator())
                 : ElevatedButton(
                     onPressed: _isLoading ? null : _createBlog,
                     child: Text('Create Blog'),
                   ),
             if (_error != null)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8.0),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 8.0),
                 child: Text(
                   'Error: ${ErrorHandlerException.getErrorMessage(_error)}',
                   style: TextStyle(color: Colors.red),
@@ -92,7 +114,11 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
       final QueryResult result = await GraphQLService.client.mutate(
         MutationOptions(
           document: gql(createBlogPost),
-          variables: {'title': title, 'subTitle': subTitle, 'body': body},
+          variables: {
+            'title': title,
+            'subTitle': subTitle,
+            'body': body,
+          },
         ),
       );
 
@@ -103,6 +129,8 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
         });
       } else {
         // Blog post created successfully
+        print('Blog post created successfully:');
+        print(result.data);
         // Navigate back to the previous screen
         Navigator.pop(context, true);
       }
