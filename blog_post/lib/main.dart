@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
+import 'core/client_service/graphql_client_service.dart';
 import 'features/blog/blogpost_screen.dart';
 
 void main() async {
@@ -15,12 +16,16 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GraphQLProvider(
+      client: GraphQLService.client,
+      child: MaterialApp(
         title: 'Blog Post Reader',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        home: BlogPostScreen());
+        home: BlogPostScreen(),
+      ),
+    );
   }
 }

@@ -13,6 +13,13 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import '../../core/client_service/graphql_queries.dart';
 import '../../core/common/exceptions.dart';
 
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import '../../core/client_service/graphql_client_service.dart';
+import '../../core/client_service/graphql_queries.dart';
+import '../../core/common/exceptions.dart';
+
 class CreateBlogScreen extends StatefulWidget {
   @override
   _CreateBlogScreenState createState() => _CreateBlogScreenState();
@@ -42,37 +49,16 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Text(
-            //   'Title',
-            //   style: TextStyle(
-            //     fontSize: 16,
-            //   ),
-            // ),
-            // SizedBox(height: 5),
             TextField(
               controller: _titleController,
               decoration: InputDecoration(labelText: 'Title'),
             ),
             SizedBox(height: 16.0),
-            // Text(
-            //   'Subtitle',
-            //   style: TextStyle(
-            //     fontSize: 16,
-            //   ),
-            // ),
-            // SizedBox(height: 5),
             TextField(
               controller: _subTitleController,
               decoration: InputDecoration(labelText: 'Subtitle'),
             ),
             SizedBox(height: 16.0),
-            // Text(
-            //   'Message',
-            //   style: TextStyle(
-            //     fontSize: 16,
-            //   ),
-            // ),
-            SizedBox(height: 5),
             TextField(
               controller: _bodyController,
               decoration: InputDecoration(labelText: 'Message'),
@@ -90,7 +76,7 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 8.0),
                 child: Text(
-                  'Error: ${ErrorHandlerException.getErrorMessage(_error)}',
+                  'Error: $_error',
                   style: TextStyle(color: Colors.red),
                 ),
               ),
@@ -100,7 +86,7 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
     );
   }
 
-  Future<void> _createBlog() async {
+  void _createBlog() {
     setState(() {
       _isLoading = true;
       _error = null;
@@ -110,38 +96,36 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
     final String subTitle = _subTitleController.text.trim();
     final String body = _bodyController.text.trim();
 
-    try {
-      final QueryResult result = await GraphQLService.client.mutate(
-        MutationOptions(
-          document: gql(createBlogPost),
-          variables: {
-            'title': title,
-            'subTitle': subTitle,
-            'body': body,
-          },
-        ),
-      );
-
-      if (result.hasException) {
-        setState(() {
-          _error = result.exception;
-          _isLoading = false;
-        });
-      } else {
-        // Blog post created successfully
-        print('Blog post created successfully:');
-        print(result.data);
-        // Navigate back to the previous screen
-        Navigator.pop(context, true);
-      }
-    } catch (e) {
-      setState(() {
-        _error = e;
-        _isLoading = false;
-      });
-    }
+    final createBlogMutation = useMutation(
+      MutationOptions(
+        document: gql(createBlogPost),
+        variables: {
+          'title': title,
+          'subTitle': subTitle,
+          'body': body,
+        },
+        onError: (OperationException? error) {
+          setState(() {
+            _isLoading = false;
+          });
+          _error = error.toString();
+          print('Error creating blog post: $_error');
+        },
+        onCompleted: (dynamic resultData) {
+          print('Blog post created successfully:');
+          print(resultData);
+          Navigator.pop(context, true);
+        },
+      ),
+    );
+    createBlogMutation.runMutation({
+      'title': title,
+      'subTitle': subTitle,
+      'body': body,
+    });
   }
 }
+
 
 //   void updatePost() async {
 //     final String title = titleController.text;

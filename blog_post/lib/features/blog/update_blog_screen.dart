@@ -28,6 +28,15 @@ class _UpdateBlogScreenState extends State<UpdateBlogScreen> {
   final TextEditingController _bodyController = TextEditingController();
   bool _isLoading = false;
   dynamic _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleController.text = widget.title;
+    _subTitleController.text = widget.subTitle;
+    _bodyController.text = widget.body;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,20 +55,17 @@ class _UpdateBlogScreenState extends State<UpdateBlogScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             TextField(
-              controller:
-                  TextEditingController(text: widget.title) ?? _titleController,
+              controller: _titleController,
               decoration: InputDecoration(labelText: 'Title'),
             ),
             SizedBox(height: 16.0),
             TextField(
-              controller: TextEditingController(text: widget.subTitle) ??
-                  _subTitleController,
+              controller: _subTitleController,
               decoration: InputDecoration(labelText: 'Subtitle'),
             ),
             SizedBox(height: 16.0),
             TextField(
-              controller:
-                  TextEditingController(text: widget.body) ?? _bodyController,
+              controller: _bodyController,
               decoration: InputDecoration(labelText: 'Body'),
               maxLines: null,
             ),
@@ -82,7 +88,7 @@ class _UpdateBlogScreenState extends State<UpdateBlogScreen> {
     );
   }
 
-  updatePost({
+  void updatePost({
     required String title,
     required String subTitle,
     required String body,
@@ -92,45 +98,34 @@ class _UpdateBlogScreenState extends State<UpdateBlogScreen> {
       _error = null;
     });
 
-    GraphQLClient _client = GraphQLService.client;
+    final updateBlogMutation = useMutation(
+      MutationOptions(
+        document: gql(updateBlogPost),
+        variables: {
+          'blogId': widget.blogId,
+          'title': title,
+          'subTitle': subTitle,
+          'body': body,
+        },
+        onError: (OperationException? error) {
+          setState(() {
+            _isLoading = false;
+          });
+          _error = ErrorHandlerException.getErrorMessage(error);
+          print('Error updating blog post: $_error');
+        },
+        onCompleted: (dynamic resultData) {
+          print('Blog post updated successfully:');
+          print(resultData);
+          Navigator.pop(context, true);
+        },
+      ),
+    );
 
-    try {
-      final QueryResult result = await _client.mutate(
-        MutationOptions(
-          document: gql(updateBlogPost),
-          variables: {
-            'blogId': widget.blogId,
-            'title': title.isEmpty ? title : widget.title,
-            'subTitle': subTitle.isEmpty ? subTitle : widget.subTitle,
-            'body': body.isEmpty ? body : widget.body,
-          },
-        ),
-      );
-
-      if (result.hasException) {
-        // Handle error
-        final errorMessage =
-            ErrorHandlerException.getErrorMessage(result.exception);
-        print('Error updating blog post: $errorMessage');
-        // You can display the error message using a snackbar or dialog
-        return;
-      } else {
-        // Blog post created successfully
-        print('Blog post updated successfully:');
-        print(result.data);
-        // Navigate back to the previous screen
-        Navigator.pop(context, true);
-      }
-
-      // Blog post updated successfully, you can navigate back or show a success message
-    } catch (e) {
-      // Handle error
-      final errorMessage = ErrorHandlerException.getErrorMessage(e);
-      print('Error updating blog post: $errorMessage');
-      setState(() {
-        _error = e;
-        _isLoading = false;
-      });
-    }
+    updateBlogMutation.runMutation({
+      'title': title,
+      'subTitle': subTitle,
+      'body': body,
+    });
   }
 }
