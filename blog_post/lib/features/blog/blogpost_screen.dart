@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:blog_post/core/client_service/graphQl_service.dart';
 import 'package:blog_post/core/model/post_model.dart';
@@ -19,11 +20,19 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
   List<PostModel>? _blogs;
   dynamic _error;
   GraphQLServices _graphQLServices = GraphQLServices();
-
+  Timer? _dataRefreshTimer;
   @override
   initState() {
     super.initState();
     _load();
+    _dataRefreshTimer = Timer.periodic(
+        Duration(seconds: 10), (_) => _load()); // Refresh every 30 seconds
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _dataRefreshTimer?.cancel(); // Cancel the timer when the screen is disposed
   }
 
   _load() async {
@@ -90,7 +99,7 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
       padding: const EdgeInsets.only(
         left: 25.0,
         right: 25,
-        bottom: 25,
+        bottom: 85,
       ),
       child: ListView.separated(
         separatorBuilder: (context, index) {
@@ -150,6 +159,7 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
                       title: title,
                       subTitle: subTitle,
                       body: body,
+                      date: formattedDate.toString(),
                     ),
                   ),
                 );

@@ -144,7 +144,6 @@ class GraphQLServices {
             ErrorHandlerException.getErrorMessage(result.exception));
         // throw Exception(result.exception);
       } else {
-        debugPrint(result.data as String?);
         return true;
       }
     } catch (e) {

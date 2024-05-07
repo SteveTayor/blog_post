@@ -47,12 +47,12 @@ class _UpdateBlogScreenState extends State<UpdateBlogScreen> {
 
   Future<void> _load() async {
     // Reload the blog list
-    await _graphQLServices.getAllPosts();
+    final blogList = await _graphQLServices.getAllPosts();
     setState(() {
-      // widget.blogModel = blogList.firstWhere(
-      //   (blog) => blog.id == widget.blogModel!.id,
-      //   orElse: () => widget.blogModel!,
-      // );
+      widget.blogModel = blogList.firstWhere(
+        (blog) => blog.id == widget.blogModel!.id,
+        orElse: () => widget.blogModel!,
+      );
     });
   }
 
@@ -100,12 +100,6 @@ class _UpdateBlogScreenState extends State<UpdateBlogScreen> {
                             });
 
                             try {
-                              debugPrint(
-                                widget.blogModel!.id.toString(),
-                              );
-                              debugPrint(_titleController.text);
-                              debugPrint(_subTitleController.text);
-                              debugPrint(_bodyController.text);
                               await _graphQLServices.updatePost(
                                 id: widget.blogModel!.id.toString(),
                                 title: _titleController.text,
@@ -124,6 +118,7 @@ class _UpdateBlogScreenState extends State<UpdateBlogScreen> {
 
                               // Reload the blog list
                               await _load();
+
                               Navigator.pop(context, true);
                             } catch (e) {
                               ScaffoldMessenger.of(context).showSnackBar(
