@@ -1,21 +1,36 @@
 import 'dart:io';
+import 'package:blog_post/core/client_service/graphQl_service.dart';
+import 'package:blog_post/core/model/post_model.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import '../../core/client_service/graphql_client_service.dart';
 import '../../core/client_service/graphql_queries.dart';
 import '../../core/common/exceptions.dart';
+import 'package:intl/intl.dart';
 import 'blog_details_screen.dart';
 import 'create_post_view.dart';
 import 'update_blog_screen.dart';
 
 class BlogPostScreen extends StatefulWidget {
-  @override
   _BlogPostScreenState createState() => _BlogPostScreenState();
 }
 
 class _BlogPostScreenState extends State<BlogPostScreen> {
-  List<dynamic> _blogs = [];
+  List<PostModel>? _blogs;
   dynamic _error;
+  GraphQLServices _graphQLServices = GraphQLServices();
+
+  @override
+  initState() {
+    super.initState();
+    _load();
+  }
+
+  void _load() async {
+    _blogs = null;
+    _blogs = await _graphQLServices.getAllPosts();
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,71 +62,65 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
   }
 
   Widget _buildBody() {
-    return Query(
-      options: QueryOptions(
-        document: gql(fetchAllBlogs),
-      ),
-      builder: (QueryResult result,
-          {VoidCallback? refetch, FetchMore? fetchMore}) {
-        if (result.isLoading) {
-          return Center(
+    return _blogs == null
+        ? Center(
             child: CircularProgressIndicator(),
-          );
-        } else if (result.hasException) {
-          _error = result.exception;
-          if (_error is SocketException) {
-            // Handle socket exception
-            setState(() {
-              _error = "Network error: Failed to connect to server";
-            });
-          } else {
-            // Handle other GraphQL errors
-            setState(() {
-              _error = _error.toString();
-            });
-          }
-          return Center(
-            child: Text('Error: $_error'),
-          );
-        } else {
-          final List<dynamic> fetchedBlogs = result.data?['allBlogPosts'];
-          _blogs.clear(); // Clear existing blogs before assigning new ones
-          _blogs.addAll(fetchedBlogs);
-          return _buildBlogList(context, _blogs);
-        }
-      },
-    );
+          )
+        : _blogs!.isEmpty
+            ? Center(child: Text('No posts'))
+            : _buildBlogList(context, _blogs!);
   }
 
-  Widget _buildBlogList(BuildContext context, List<dynamic> blogs) {
+  Widget _buildBlogList(BuildContext context, List<PostModel> blogs) {
     return ListView.builder(
       itemCount: blogs.length,
       itemBuilder: (context, index) {
         final blog = blogs[index];
-        final title = blog['title'];
-        final subTitle = blog['subTitle'];
-        final body = blog['body'];
+        debugPrint(blog.toString());
+        final title = blog.title;
+        final subTitle = blog.subTitle;
+        final body = blog.body;
+        debugPrint('title : ${title.toString()}');
+        debugPrint('subtitle : ${subTitle.toString()}');
+        debugPrint('body : ${body.toString()}');
+        final dateString = blog.dateCreated;
+        final dateCreated = DateTime.parse(dateString as String);
+        final formattedDate = DateFormat.yMMMd().format(dateCreated);
 
         // Check if title, subTitle, and body are not empty
-        if (title.isEmpty || subTitle.isEmpty || body.isEmpty) {
+        if (title!.isEmpty || subTitle!.isEmpty || body!.isEmpty) {
           // Return an empty container if any of the fields are empty
           return Container();
         }
 
         return Card(
           child: ListTile(
+            leading: Icon(Icons.post_add_rounded),
             title: Text(
               title,
               style: TextStyle(
-                fontSize: 22,
+                fontSize: 20,
                 fontWeight: FontWeight.w400,
               ),
             ),
-            subtitle: Text(
-              subTitle,
-              style: TextStyle(
-                fontSize: 12,
-              ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  subTitle,
+                  style: TextStyle(
+                    fontSize: 14,
+                  ),
+                ),
+                Text(
+                  '$formattedDate', // Display formatted date
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
             ),
             onTap: () {
               // Navigate to blog details screen
@@ -133,6 +142,12 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
                   icon: Icon(Icons.edit, size: 20, color: Colors.blue),
                   onPressed: () => _navigateToUpdateBlog(context, blog),
                 ),
+                IconButton(
+                    icon: Icon(Icons.delete, color: Colors.red),
+                    onPressed: () {
+                      _graphQLServices.deletePost(id: blog.id!);
+                      _load();
+                    }),
                 // _deleteBlog(blog['id']),
               ],
             ),
