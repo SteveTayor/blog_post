@@ -1,21 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
+import '../../core/client_service/graphQl_service.dart';
 import '../../core/client_service/graphql_client_service.dart';
 import '../../core/client_service/graphql_queries.dart';
 import '../../core/common/exceptions.dart';
+import '../../core/model/post_model.dart';
 
 class UpdateBlogScreen extends StatefulWidget {
-  final String blogId;
-  final String title;
-  final String subTitle;
-  final String body;
+  PostModel? blogModel;
 
   UpdateBlogScreen({
-    required this.blogId,
-    required this.title,
-    required this.subTitle,
-    required this.body,
+    required this.blogModel,
   });
 
   @override
@@ -28,13 +24,14 @@ class _UpdateBlogScreenState extends State<UpdateBlogScreen> {
   final TextEditingController _bodyController = TextEditingController();
   bool _isLoading = false;
   dynamic _error;
+  GraphQLServices _graphQLServices = GraphQLServices();
 
   @override
   void initState() {
     super.initState();
-    _titleController.text = widget.title;
-    _subTitleController.text = widget.subTitle;
-    _bodyController.text = widget.body;
+    _titleController.text = widget.blogModel!.title!;
+    _subTitleController.text = widget.blogModel!.subTitle!;
+    _bodyController.text = widget.blogModel!.body!;
   }
 
   @override
@@ -75,12 +72,23 @@ class _UpdateBlogScreenState extends State<UpdateBlogScreen> {
                 : ElevatedButton(
                     onPressed: _isLoading
                         ? null
-                        : () => updatePost(
+                        : () async {
+                            _graphQLServices.updatePost(
+                              id: widget.blogModel!.id!,
                               title: _titleController.text,
-                              subTitle: _subTitleController.text,
+                              subtitle: _subTitleController.text,
                               body: _bodyController.text,
-                            ),
-                    child: Text('Update'),
+                            );
+                            await _graphQLServices.getAllPosts();
+                            setState(() {});
+                            Navigator.pop(context, true);
+                          },
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text('Update',style: TextStyle(
+                              fontSize: 22,
+                            ),),
+                    )
                   ),
           ],
         ),
@@ -88,44 +96,44 @@ class _UpdateBlogScreenState extends State<UpdateBlogScreen> {
     );
   }
 
-  void updatePost({
-    required String title,
-    required String subTitle,
-    required String body,
-  }) async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
+  // void updatePost({
+  //   required String title,
+  //   required String subTitle,
+  //   required String body,
+  // }) async {
+  //   setState(() {
+  //     _isLoading = true;
+  //     _error = null;
+  //   });
 
-    final updateBlogMutation = useMutation(
-      MutationOptions(
-        document: gql(updateBlogPost),
-        variables: {
-          'blogId': widget.blogId,
-          'title': title,
-          'subTitle': subTitle,
-          'body': body,
-        },
-        onError: (OperationException? error) {
-          setState(() {
-            _isLoading = false;
-          });
-          _error = ErrorHandlerException.getErrorMessage(error);
-          print('Error updating blog post: $_error');
-        },
-        onCompleted: (dynamic resultData) {
-          print('Blog post updated successfully:');
-          print(resultData);
-          Navigator.pop(context, true);
-        },
-      ),
-    );
+  //   final updateBlogMutation = useMutation(
+  //     MutationOptions(
+  //       document: gql(updateBlogPost),
+  //       variables: {
+  //         'blogId': widget.blogId,
+  //         'title': title,
+  //         'subTitle': subTitle,
+  //         'body': body,
+  //       },
+  //       onError: (OperationException? error) {
+  //         setState(() {
+  //           _isLoading = false;
+  //         });
+  //         _error = ErrorHandlerException.getErrorMessage(error);
+  //         print('Error updating blog post: $_error');
+  //       },
+  //       onCompleted: (dynamic resultData) {
+  //         print('Blog post updated successfully:');
+  //         print(resultData);
+  //         Navigator.pop(context, true);
+  //       },
+  //     ),
+  //   );
 
-    updateBlogMutation.runMutation({
-      'title': title,
-      'subTitle': subTitle,
-      'body': body,
-    });
-  }
+  //   updateBlogMutation.runMutation({
+  //     'title': title,
+  //     'subTitle': subTitle,
+  //     'body': body,
+  //   });
+  // }
 }

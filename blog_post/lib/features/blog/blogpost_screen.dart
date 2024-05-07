@@ -148,7 +148,6 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
                       _graphQLServices.deletePost(id: blog.id!);
                       _load();
                     }),
-                // _deleteBlog(blog['id']),
               ],
             ),
           ),
@@ -157,52 +156,12 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
     );
   }
 
-  void _navigateToUpdateBlog(BuildContext context, dynamic blog) {
+  void _navigateToUpdateBlog(BuildContext context, PostModel? blog) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => UpdateBlogScreen(
-          blogId: blog['id'],
-          title: blog['title'],
-          subTitle: blog['subTitle'],
-          body: blog['body'],
-        ),
+        builder: (context) => UpdateBlogScreen(blogModel: blog),
       ),
-    );
-  }
-
-  Widget _deleteBlog(String blogId) {
-    return Mutation(
-      options: MutationOptions(
-        document: gql(deleteBlogPost),
-        variables: {
-          'blogId': blogId,
-        },
-        onError: (OperationException? error) {
-          if (error?.linkException is SocketException) {
-            // Handle socket exception
-            setState(() {
-              _error = "Network error: Failed to connect to server";
-            });
-          } else {
-            // Handle other GraphQL errors
-            setState(() {
-              _error = error.toString();
-            });
-          }
-          print('Error deleting blog post: $_error');
-        },
-        onCompleted: (dynamic resultData) {
-          // Handle completion
-          print('Blog post deleted successfully');
-        },
-      ),
-      builder: (RunMutation runMutation, QueryResult? result) {
-        return IconButton(
-          icon: Icon(Icons.delete, size: 20, color: Colors.red),
-          onPressed: () => runMutation({'blogId': blogId}),
-        );
-      },
     );
   }
 }

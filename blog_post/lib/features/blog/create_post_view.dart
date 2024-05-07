@@ -4,6 +4,7 @@ import 'package:blog_post/core/common/exceptions.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
+import '../../core/client_service/graphQl_service.dart';
 import '../../core/client_service/graphql_client_service.dart';
 import '../../core/client_service/graphql_queries.dart';
 
@@ -30,7 +31,13 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
   final TextEditingController _subTitleController = TextEditingController();
   final TextEditingController _bodyController = TextEditingController();
   bool _isLoading = false;
-  dynamic _error;
+  GraphQLServices _graphQLServices = GraphQLServices();
+
+  clear() {
+    _titleController.clear();
+    _subTitleController.clear();
+    _bodyController.clear();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,139 +71,73 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
               decoration: InputDecoration(labelText: 'Message'),
               maxLines: null,
             ),
-            SizedBox(height: 16.0),
+            SizedBox(height: 30.0),
             _isLoading
                 ? Center(child: CircularProgressIndicator())
                 : ElevatedButton(
-                    onPressed: _isLoading ? null : _createBlog,
-                    child: Text('Create Blog'),
+                    onPressed: _isLoading
+                        ? null
+                        : () async {
+                            await _graphQLServices.createPost(
+                              title: _titleController.text,
+                              subtitle: _subTitleController.text,
+                              body: _bodyController.text,
+                            );
+                            clear();
+                            await _graphQLServices.getAllPosts();
+                            setState(() {});
+                            Navigator.pop(context, true);
+                          },
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text('Create Blog',
+                          style: TextStyle(
+                            fontSize: 22,
+                          )),
+                    ),
                   ),
-            if (_error != null)
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 8.0),
-                child: Text(
-                  'Error: $_error',
-                  style: TextStyle(color: Colors.red),
-                ),
-              ),
           ],
         ),
       ),
     );
   }
 
-  void _createBlog() {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
+  // void _createBlog() {
+  //   setState(() {
+  //     _isLoading = true;
+  //     _error = null;
+  //   });
 
-    final String title = _titleController.text.trim();
-    final String subTitle = _subTitleController.text.trim();
-    final String body = _bodyController.text.trim();
+  //   final String title = _titleController.text.trim();
+  //   final String subTitle = _subTitleController.text.trim();
+  //   final String body = _bodyController.text.trim();
 
-    final createBlogMutation = useMutation(
-      MutationOptions(
-        document: gql(createBlogPost),
-        variables: {
-          'title': title,
-          'subTitle': subTitle,
-          'body': body,
-        },
-        onError: (OperationException? error) {
-          setState(() {
-            _isLoading = false;
-          });
-          _error = error.toString();
-          print('Error creating blog post: $_error');
-        },
-        onCompleted: (dynamic resultData) {
-          print('Blog post created successfully:');
-          print(resultData);
-          Navigator.pop(context, true);
-        },
-      ),
-    );
-    createBlogMutation.runMutation({
-      'title': title,
-      'subTitle': subTitle,
-      'body': body,
-    });
-  }
+  //   final createBlogMutation = useMutation(
+  //     MutationOptions(
+  //       document: gql(createBlogPost),
+  //       variables: {
+  //         'title': title,
+  //         'subTitle': subTitle,
+  //         'body': body,
+  //       },
+  //       onError: (OperationException? error) {
+  //         setState(() {
+  //           _isLoading = false;
+  //         });
+  //         _error = error.toString();
+  //         print('Error creating blog post: $_error');
+  //       },
+  //       onCompleted: (dynamic resultData) {
+  //         print('Blog post created successfully:');
+  //         print(resultData);
+  //         Navigator.pop(context, true);
+  //       },
+  //     ),
+  //   );
+  //   createBlogMutation.runMutation({
+  //     'title': title,
+  //     'subTitle': subTitle,
+  //     'body': body,
+  //   });
+  // }
 }
-
-
-//   void updatePost() async {
-//     final String title = titleController.text;
-//     final String subTitle = subTitleController.text;
-//     final String body = bodyController.text;
-
-//     GraphQLClient _client = GraphQLService.client;
-
-//     try {
-//       final QueryResult result = await _client.mutate(
-//         MutationOptions(
-//           document: gql(updateBlogPost),
-//           variables: {
-//             'blogId': widget.blogId,
-//             'title': title,
-//             'subTitle': subTitle,
-//             'body': body,
-//           },
-//         ),
-//       );
-
-//       if (result.hasException) {
-//         // Handle error
-//         final errorMessage =
-//             ErrorHandlerException.getErrorMessage(result.exception);
-//         print('Error updating blog post: $errorMessage');
-//         // You can display the error message using a snackbar or dialog
-//         return;
-//       }
-
-//       // Blog post updated successfully, you can navigate back or show a success message
-//     } catch (e) {
-//       // Handle error
-//       final errorMessage = ErrorHandlerException.getErrorMessage(e);
-//       print('Error updating blog post: $errorMessage');
-//     }
-//   }
-
-//   void createPost() async {
-//     final String title = titleController.text;
-//     final String subTitle = subTitleController.text;
-//     final String body = bodyController.text;
-
-//     GraphQLClient _client = GraphQLService.client;
-
-//     try {
-//       final QueryResult result = await _client.mutate(
-//         MutationOptions(
-//           document: gql(createBlogPost),
-//           variables: {
-//             'title': title,
-//             'subTitle': subTitle,
-//             'body': body,
-//           },
-//         ),
-//       );
-
-//       if (result.hasException) {
-//         // Handle error
-//         final errorMessage =
-//             ErrorHandlerException.getErrorMessage(result.exception);
-//         print('Error creating blog post: $errorMessage');
-//         // You can display the error message using a snackbar or dialog
-//         return;
-//       }
-
-//       // Blog post created successfully, you can navigate back or show a success message
-//     } catch (e) {
-//       // Handle error
-//       final errorMessage = ErrorHandlerException.getErrorMessage(e);
-//       print('Error creating blog post: $errorMessage');
-//     }
-//   }
-// }

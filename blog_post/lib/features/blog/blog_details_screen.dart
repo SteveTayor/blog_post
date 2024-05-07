@@ -35,6 +35,7 @@ class BlogDetailScreen extends StatelessWidget {
             SizedBox(height: 15.0),
             Expanded(
               child: Container(
+                width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
                   color: Colors.teal.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(15),
