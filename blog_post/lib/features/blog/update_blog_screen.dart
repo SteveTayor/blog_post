@@ -74,15 +74,21 @@ class _UpdateBlogScreenState extends State<UpdateBlogScreen> {
                     onPressed: _isLoading
                         ? null
                         : () async {
-                            _graphQLServices.updatePost(
+                            await _graphQLServices.updatePost(
                               id: widget.blogModel!.id!,
-                              title: _titleController.text,
-                              subtitle: _subTitleController.text,
-                              body: _bodyController.text,
+                              title: _titleController.text.isNotEmpty
+                                  ? _titleController.text
+                                  : widget.blogModel!.title!,
+                              subtitle: _subTitleController.text.isNotEmpty
+                                  ? _subTitleController.text
+                                  : widget.blogModel!.subTitle!,
+                              body: _bodyController.text.isNotEmpty
+                                  ? _bodyController.text
+                                  : widget.blogModel!.body!,
                             );
                             await _graphQLServices.getAllPosts();
                             setState(() {});
-                            ScaffoldMessengerState().showSnackBar(SnackBar(
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                               content: Text(
                                 'post updated successfully',
                               ),

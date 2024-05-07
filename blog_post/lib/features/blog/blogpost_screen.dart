@@ -27,15 +27,26 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
   }
 
   _load() async {
-    _blogs = null;
-    _blogs = await _graphQLServices.getAllPosts();
-    setState(() {});
+    try {
+      _blogs = null;
+      _blogs = await _graphQLServices.getAllPosts();
+      setState(() {});
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error loading posts: $e"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
-      onRefresh: _load(),
+      onRefresh: () async {
+        await _load();
+      },
       child: Scaffold(
         appBar: AppBar(
           title: Text(
@@ -77,17 +88,16 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
   Widget _buildBlogList(BuildContext context, List<PostModel> blogs) {
     return Padding(
       padding: const EdgeInsets.all(25.0),
-      child: ListView.builder(
+      child: ListView.separated(
+        separatorBuilder: (context, index) {
+          return SizedBox(height: 8);
+        },
         itemCount: blogs.length,
         itemBuilder: (context, index) {
           final blog = blogs[index];
-          debugPrint(blogs.toString());
           final title = blog.title;
           final subTitle = blog.subTitle;
           final body = blog.body;
-          debugPrint('title : ${title.toString()}');
-          debugPrint('subtitle : ${subTitle.toString()}');
-          debugPrint('body : ${body.toString()}');
           final dateString = blog.dateCreated;
           final formattedDate =
               dateString != null ? DateFormat.yMMMd().format(dateString) : null;
@@ -100,7 +110,7 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
 
           return Card(
             child: ListTile(
-              leading: Icon(Icons.image_rounded),
+              // leading: Icon(Icons.image_rounded),
               title: Text(
                 title,
                 style: TextStyle(
@@ -179,16 +189,13 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
           actions: [
             TextButton(
               style: TextButton.styleFrom(
-                backgroundColor: Colors.grey[200], // Light grey color
+                backgroundColor: Colors.grey[400], // Light grey color
               ),
               onPressed: () => Navigator.of(context).pop(),
-              child: Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Text(
-                  "Cancel",
-                  style: TextStyle(
-                    color: Colors.green,
-                  ),
+              child: Text(
+                "Cancel",
+                style: TextStyle(
+                  color: Colors.red,
                 ),
               ),
             ),
@@ -197,22 +204,29 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
                 backgroundColor: Colors.red, // Red color
               ),
               onPressed: () async {
-                await _graphQLServices.deletePost(id: blog.id!);
-                _load();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text("Post deleted successfully"),
-                    backgroundColor: Colors.green,
-                  ),
-                );
+                try {
+                  await _graphQLServices.deletePost(id: blog.id!);
+                  _load();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("Post deleted successfully"),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("Error deleting post: $e"),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+                Navigator.of(context).pop();
               },
-              child: Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Text(
-                  "Delete",
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
+              child: Text(
+                "Delete",
+                style: TextStyle(
+                  color: Colors.white,
                 ),
               ),
             ),

@@ -137,10 +137,9 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
                               subtitle: _subTitleController.text,
                               body: _bodyController.text,
                             );
-                            clear();
                             await _graphQLServices.getAllPosts();
                             setState(() {});
-                            ScaffoldMessengerState().showSnackBar(
+                            ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
                                   'post created successfully',
@@ -148,6 +147,7 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
                                 backgroundColor: Colors.green,
                               ),
                             );
+                            clear();
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(

@@ -1,7 +1,9 @@
 import 'package:blog_post/core/client_service/graphql_queries.dart';
 import 'package:blog_post/core/model/post_model.dart';
+import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
+import '../common/exceptions.dart';
 import 'graphql_client_service.dart';
 
 class GraphQLServices {
@@ -17,7 +19,9 @@ class GraphQLServices {
         ),
       );
       if (result.hasException) {
-        throw Exception(result.exception);
+        throw Exception(
+            ErrorHandlerException.getErrorMessage(result.exception));
+        // throw Exception(result.exception);
       }
       List? newResult = result.data?['allBlogPosts'];
       if (newResult == null || newResult.isEmpty) {
@@ -25,10 +29,11 @@ class GraphQLServices {
       }
       List<PostModel> posts =
           newResult.map((post) => PostModel.fromMap(post)).toList();
-
+      debugPrint(posts.toString());
       return posts;
     } catch (e) {
-      throw Exception(e);
+      throw Exception(ErrorHandlerException.getErrorMessage(e));
+      // throw Exception(e);
     }
   }
 
@@ -45,7 +50,9 @@ class GraphQLServices {
             }),
       );
       if (result.hasException) {
-        throw Exception(result.exception);
+        throw Exception(
+            ErrorHandlerException.getErrorMessage(result.exception));
+        // throw Exception(result.exception);
       }
       dynamic newResult = result.data?['blogPost'];
       // if (newResult == null || newResult.isEmpty) {
@@ -56,7 +63,8 @@ class GraphQLServices {
 
       return post;
     } catch (e) {
-      throw Exception(e);
+      throw Exception(ErrorHandlerException.getErrorMessage(e));
+      // throw Exception(e);
     }
   }
 
@@ -70,8 +78,11 @@ class GraphQLServices {
         ),
       );
       if (result.hasException) {
-        throw Exception(result.exception);
+        throw Exception(
+            ErrorHandlerException.getErrorMessage(result.exception));
+        // throw Exception(result.exception);
       } else {
+        debugPrint(result.data.toString());
         return true;
       }
     } catch (e) {
@@ -88,7 +99,7 @@ class GraphQLServices {
       QueryResult result = await client.mutate(
         MutationOptions(
           fetchPolicy: FetchPolicy.noCache,
-          document: gql(deleteBlogPost),
+          document: gql(createBlogPost),
           variables: {
             "title": title,
             "subTitle": subtitle,
@@ -97,8 +108,11 @@ class GraphQLServices {
         ),
       );
       if (result.hasException) {
-        throw Exception(result.exception);
+        throw Exception(
+            ErrorHandlerException.getErrorMessage(result.exception));
+        // throw Exception(result.exception);
       } else {
+        debugPrint(result.data.toString());
         return true;
       }
     } catch (e) {
@@ -116,7 +130,7 @@ class GraphQLServices {
       QueryResult result = await client.mutate(
         MutationOptions(
           fetchPolicy: FetchPolicy.noCache,
-          document: gql(deleteBlogPost),
+          document: gql(updateBlogPost),
           variables: {
             "id": id,
             "title": title,
@@ -126,8 +140,11 @@ class GraphQLServices {
         ),
       );
       if (result.hasException) {
-        throw Exception(result.exception);
+        throw Exception(
+            ErrorHandlerException.getErrorMessage(result.exception));
+        // throw Exception(result.exception);
       } else {
+        debugPrint(result.data.toString());
         return true;
       }
     } catch (e) {
