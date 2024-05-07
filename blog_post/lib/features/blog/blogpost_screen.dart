@@ -26,7 +26,7 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
     super.initState();
     _load();
     _dataRefreshTimer = Timer.periodic(
-        Duration(seconds: 10), (_) => _load()); // Refresh every 30 seconds
+        Duration(seconds: 5), (_) => _load()); // Refresh every 30 seconds
   }
 
   @override
