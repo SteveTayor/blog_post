@@ -87,7 +87,11 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
 
   Widget _buildBlogList(BuildContext context, List<PostModel> blogs) {
     return Padding(
-      padding: const EdgeInsets.all(25.0),
+      padding: const EdgeInsets.only(
+        left: 25.0,
+        right: 25,
+        bottom: 25,
+      ),
       child: ListView.separated(
         separatorBuilder: (context, index) {
           return SizedBox(height: 8);

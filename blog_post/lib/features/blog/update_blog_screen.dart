@@ -35,6 +35,17 @@ class _UpdateBlogScreenState extends State<UpdateBlogScreen> {
     _bodyController.text = widget.blogModel!.body!;
   }
 
+  Future<void> _load() async {
+    // Reload the blog list
+    final blogList = await _graphQLServices.getAllPosts();
+    setState(() {
+      widget.blogModel = blogList.firstWhere(
+        (blog) => blog.id == widget.blogModel!.id,
+        orElse: () => widget.blogModel!,
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -74,31 +85,47 @@ class _UpdateBlogScreenState extends State<UpdateBlogScreen> {
                     onPressed: _isLoading
                         ? null
                         : () async {
-                            await _graphQLServices.updatePost(
-                              id: widget.blogModel!.id!,
-                              title: _titleController.text.isNotEmpty
-                                  ? _titleController.text
-                                  : widget.blogModel!.title!,
-                              subtitle: _subTitleController.text.isNotEmpty
-                                  ? _subTitleController.text
-                                  : widget.blogModel!.subTitle!,
-                              body: _bodyController.text.isNotEmpty
-                                  ? _bodyController.text
-                                  : widget.blogModel!.body!,
-                            );
-                            await _graphQLServices.getAllPosts();
-                            setState(() {});
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content: Text(
-                                'post updated successfully',
-                              ),
-                              backgroundColor: Colors.green,
-                            ));
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => BlogPostScreen()),
-                            );
+                            setState(() {
+                              _isLoading = true;
+                            });
+
+                            try {
+                              await _graphQLServices.updatePost(
+                                id: widget.blogModel!.id!,
+                                title: _titleController.text,
+                                subtitle: _subTitleController.text,
+                                body: _bodyController.text,
+                              );
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Post updated successfully',
+                                  ),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+
+                              // Reload the blog list
+                              await _load();
+                              Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                    builder: (context) => BlogPostScreen()),
+                              );
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Error updating post: $e',
+                                  ),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            } finally {
+                              setState(() {
+                                _isLoading = false;
+                              });
+                            }
                           },
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -108,7 +135,8 @@ class _UpdateBlogScreenState extends State<UpdateBlogScreen> {
                           fontSize: 22,
                         ),
                       ),
-                    )),
+                    ),
+                  ),
           ],
         ),
       ),
