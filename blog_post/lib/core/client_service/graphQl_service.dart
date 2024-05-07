@@ -132,7 +132,7 @@ class GraphQLServices {
           fetchPolicy: FetchPolicy.noCache,
           document: gql(updateBlogPost),
           variables: {
-            "id": id,
+            "blogId": id,
             "title": title,
             "subTitle": subtitle,
             "body": body,
@@ -144,11 +144,13 @@ class GraphQLServices {
             ErrorHandlerException.getErrorMessage(result.exception));
         // throw Exception(result.exception);
       } else {
-        debugPrint(result.data.toString());
+        debugPrint(result.data as String?);
         return true;
       }
     } catch (e) {
-      return false;
+      debugPrint(e.toString());
+      throw Exception(ErrorHandlerException.getErrorMessage(e));
+      // return false;
     }
   }
 }

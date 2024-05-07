@@ -20,10 +20,11 @@ class UpdateBlogScreen extends StatefulWidget {
 }
 
 class _UpdateBlogScreenState extends State<UpdateBlogScreen> {
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _subTitleController = TextEditingController();
-  final TextEditingController _bodyController = TextEditingController();
+  TextEditingController _titleController = TextEditingController();
+  TextEditingController _subTitleController = TextEditingController();
+  TextEditingController _bodyController = TextEditingController();
   bool _isLoading = false;
+
   dynamic _error;
   GraphQLServices _graphQLServices = GraphQLServices();
 
@@ -35,14 +36,23 @@ class _UpdateBlogScreenState extends State<UpdateBlogScreen> {
     _bodyController.text = widget.blogModel!.body!;
   }
 
+  @override
+  void dispose() {
+    // Dispose the controllers
+    _titleController.dispose();
+    _subTitleController.dispose();
+    _bodyController.dispose();
+    super.dispose();
+  }
+
   Future<void> _load() async {
     // Reload the blog list
-    final blogList = await _graphQLServices.getAllPosts();
+    await _graphQLServices.getAllPosts();
     setState(() {
-      widget.blogModel = blogList.firstWhere(
-        (blog) => blog.id == widget.blogModel!.id,
-        orElse: () => widget.blogModel!,
-      );
+      // widget.blogModel = blogList.firstWhere(
+      //   (blog) => blog.id == widget.blogModel!.id,
+      //   orElse: () => widget.blogModel!,
+      // );
     });
   }
 
@@ -90,8 +100,14 @@ class _UpdateBlogScreenState extends State<UpdateBlogScreen> {
                             });
 
                             try {
+                              debugPrint(
+                                widget.blogModel!.id.toString(),
+                              );
+                              debugPrint(_titleController.text);
+                              debugPrint(_subTitleController.text);
+                              debugPrint(_bodyController.text);
                               await _graphQLServices.updatePost(
-                                id: widget.blogModel!.id!,
+                                id: widget.blogModel!.id.toString(),
                                 title: _titleController.text,
                                 subtitle: _subTitleController.text,
                                 body: _bodyController.text,
@@ -108,10 +124,7 @@ class _UpdateBlogScreenState extends State<UpdateBlogScreen> {
 
                               // Reload the blog list
                               await _load();
-                              Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(
-                                    builder: (context) => BlogPostScreen()),
-                              );
+                              Navigator.pop(context, true);
                             } catch (e) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
@@ -142,45 +155,4 @@ class _UpdateBlogScreenState extends State<UpdateBlogScreen> {
       ),
     );
   }
-
-  // void updatePost({
-  //   required String title,
-  //   required String subTitle,
-  //   required String body,
-  // }) async {
-  //   setState(() {
-  //     _isLoading = true;
-  //     _error = null;
-  //   });
-
-  //   final updateBlogMutation = useMutation(
-  //     MutationOptions(
-  //       document: gql(updateBlogPost),
-  //       variables: {
-  //         'blogId': widget.blogId,
-  //         'title': title,
-  //         'subTitle': subTitle,
-  //         'body': body,
-  //       },
-  //       onError: (OperationException? error) {
-  //         setState(() {
-  //           _isLoading = false;
-  //         });
-  //         _error = ErrorHandlerException.getErrorMessage(error);
-  //         print('Error updating blog post: $_error');
-  //       },
-  //       onCompleted: (dynamic resultData) {
-  //         print('Blog post updated successfully:');
-  //         print(resultData);
-  //         Navigator.pop(context, true);
-  //       },
-  //     ),
-  //   );
-
-  //   updateBlogMutation.runMutation({
-  //     'title': title,
-  //     'subTitle': subTitle,
-  //     'body': body,
-  //   });
-  // }
 }

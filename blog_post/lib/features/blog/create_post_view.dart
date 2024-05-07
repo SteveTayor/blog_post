@@ -132,27 +132,41 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
                     onPressed: _isLoading
                         ? null
                         : () async {
-                            await _graphQLServices.createPost(
-                              title: _titleController.text,
-                              subtitle: _subTitleController.text,
-                              body: _bodyController.text,
-                            );
-                            await _graphQLServices.getAllPosts();
-                            setState(() {});
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  'post created successfully',
+                            setState(() {
+                              _isLoading = true;
+                            });
+                            try {
+                              await _graphQLServices.createPost(
+                                title: _titleController.text,
+                                subtitle: _subTitleController.text,
+                                body: _bodyController.text,
+                              );
+                              await _graphQLServices.getAllPosts();
+                              setState(() {});
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Post created successfully',
+                                  ),
+                                  backgroundColor: Colors.green,
                                 ),
-                                backgroundColor: Colors.green,
-                              ),
-                            );
-                            clear();
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => BlogPostScreen()),
-                            );
+                              );
+                              clear();
+                              Navigator.pop(context, true);
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Error creating post: $e',
+                                  ),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            } finally {
+                              setState(() {
+                                _isLoading = false;
+                              });
+                            }
                           },
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -169,43 +183,4 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
       ),
     );
   }
-
-  // void _createBlog() {
-  //   setState(() {
-  //     _isLoading = true;
-  //     _error = null;
-  //   });
-
-  //   final String title = _titleController.text.trim();
-  //   final String subTitle = _subTitleController.text.trim();
-  //   final String body = _bodyController.text.trim();
-
-  //   final createBlogMutation = useMutation(
-  //     MutationOptions(
-  //       document: gql(createBlogPost),
-  //       variables: {
-  //         'title': title,
-  //         'subTitle': subTitle,
-  //         'body': body,
-  //       },
-  //       onError: (OperationException? error) {
-  //         setState(() {
-  //           _isLoading = false;
-  //         });
-  //         _error = error.toString();
-  //         print('Error creating blog post: $_error');
-  //       },
-  //       onCompleted: (dynamic resultData) {
-  //         print('Blog post created successfully:');
-  //         print(resultData);
-  //         Navigator.pop(context, true);
-  //       },
-  //     ),
-  //   );
-  //   createBlogMutation.runMutation({
-  //     'title': title,
-  //     'subTitle': subTitle,
-  //     'body': body,
-  //   });
-  // }
 }
