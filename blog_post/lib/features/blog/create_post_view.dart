@@ -111,6 +111,7 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
               ),
               child: TextField(
                 controller: _bodyController,
+                maxLines: null,
                 decoration: InputDecoration(
                   hintText: 'message',
                   contentPadding: EdgeInsets.symmetric(
