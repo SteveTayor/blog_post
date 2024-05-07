@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:blog_post/core/common/exceptions.dart';
+import 'package:blog_post/features/blog/blogpost_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
@@ -56,21 +57,74 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextField(
-              controller: _titleController,
-              decoration: InputDecoration(labelText: 'Title'),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius:
+                    BorderRadius.circular(10.0), // Adjust the radius as needed
+                color:
+                    Colors.grey[300], // Adjust the background color as needed
+              ),
+              child: TextField(
+                controller: _titleController,
+                decoration: InputDecoration(
+                  hintText: 'Title',
+                  contentPadding: EdgeInsets.symmetric(
+                      horizontal: 20.0), // Adjust padding as needed
+                  border: InputBorder.none, // Remove the border
+                ),
+              ),
             ),
+            // TextField(
+            //   controller: _titleController,
+            //   decoration: InputDecoration(labelText: 'Title'),
+            // ),
             SizedBox(height: 16.0),
-            TextField(
-              controller: _subTitleController,
-              decoration: InputDecoration(labelText: 'Subtitle'),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius:
+                    BorderRadius.circular(10.0), // Adjust the radius as needed
+                color:
+                    Colors.grey[200], // Adjust the background color as needed
+              ),
+              child: TextField(
+                controller: _subTitleController,
+                decoration: InputDecoration(
+                  hintText: 'Subtitle',
+                  contentPadding: EdgeInsets.symmetric(
+                      horizontal: 20.0), // Adjust padding as needed
+                  border: InputBorder.none, // Remove the border
+                ),
+              ),
             ),
+
+            // TextField(
+            //   controller: _subTitleController,
+            //   decoration: InputDecoration(labelText: 'Subtitle'),
+            // ),
             SizedBox(height: 16.0),
-            TextField(
-              controller: _bodyController,
-              decoration: InputDecoration(labelText: 'Message'),
-              maxLines: null,
+            Container(
+              decoration: BoxDecoration(
+                borderRadius:
+                    BorderRadius.circular(10.0), // Adjust the radius as needed
+                color:
+                    Colors.grey[200], // Adjust the background color as needed
+              ),
+              child: TextField(
+                controller: _bodyController,
+                decoration: InputDecoration(
+                  hintText: 'message',
+                  contentPadding: EdgeInsets.symmetric(
+                      horizontal: 20.0), // Adjust padding as needed
+                  border: InputBorder.none, // Remove the border
+                ),
+              ),
             ),
+
+            // TextField(
+            //   controller: _bodyController,
+            //   decoration: InputDecoration(labelText: 'Message'),
+            //   maxLines: null,
+            // ),
             SizedBox(height: 30.0),
             _isLoading
                 ? Center(child: CircularProgressIndicator())
@@ -86,14 +140,28 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
                             clear();
                             await _graphQLServices.getAllPosts();
                             setState(() {});
-                            Navigator.pop(context, true);
+                            ScaffoldMessengerState().showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'post created successfully',
+                                ),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => BlogPostScreen()),
+                            );
                           },
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Text('Create Blog',
-                          style: TextStyle(
-                            fontSize: 22,
-                          )),
+                      child: Text(
+                        'Create Blog',
+                        style: TextStyle(
+                          fontSize: 22,
+                        ),
+                      ),
                     ),
                   ),
           ],

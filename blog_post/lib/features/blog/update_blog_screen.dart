@@ -1,3 +1,4 @@
+import 'package:blog_post/features/blog/blogpost_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
@@ -81,15 +82,27 @@ class _UpdateBlogScreenState extends State<UpdateBlogScreen> {
                             );
                             await _graphQLServices.getAllPosts();
                             setState(() {});
-                            Navigator.pop(context, true);
+                            ScaffoldMessengerState().showSnackBar(SnackBar(
+                              content: Text(
+                                'post updated successfully',
+                              ),
+                              backgroundColor: Colors.green,
+                            ));
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => BlogPostScreen()),
+                            );
                           },
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Text('Update',style: TextStyle(
-                              fontSize: 22,
-                            ),),
-                    )
-                  ),
+                      child: Text(
+                        'Update',
+                        style: TextStyle(
+                          fontSize: 22,
+                        ),
+                      ),
+                    )),
           ],
         ),
       ),

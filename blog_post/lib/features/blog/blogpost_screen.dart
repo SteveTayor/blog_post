@@ -26,7 +26,7 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
     _load();
   }
 
-  void _load() async {
+  _load() async {
     _blogs = null;
     _blogs = await _graphQLServices.getAllPosts();
     setState(() {});
@@ -34,29 +34,32 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Blog Posts',
-          style: TextStyle(fontSize: 25, fontWeight: FontWeight.w500),
+    return RefreshIndicator(
+      onRefresh: _load(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            'Blog Posts',
+            style: TextStyle(fontSize: 25, fontWeight: FontWeight.w500),
+          ),
+          centerTitle: true,
         ),
-        centerTitle: true,
-      ),
-      body: _buildBody(),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  CreateBlogScreen(), // Replace with your create screen class
-            ),
-          );
-        },
-        label: Text(
-          '  Create',
+        body: _buildBody(),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    CreateBlogScreen(), // Replace with your create screen class
+              ),
+            );
+          },
+          label: Text(
+            '  Create',
+          ),
+          icon: Icon(Icons.add),
         ),
-        icon: Icon(Icons.add),
       ),
     );
   }
@@ -72,88 +75,88 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
   }
 
   Widget _buildBlogList(BuildContext context, List<PostModel> blogs) {
-    return ListView.builder(
-      itemCount: blogs.length,
-      itemBuilder: (context, index) {
-        final blog = blogs[index];
-        debugPrint(blog.toString());
-        final title = blog.title;
-        final subTitle = blog.subTitle;
-        final body = blog.body;
-        debugPrint('title : ${title.toString()}');
-        debugPrint('subtitle : ${subTitle.toString()}');
-        debugPrint('body : ${body.toString()}');
-        final dateString = blog.dateCreated;
-        final formattedDate =
-            dateString != null ? DateFormat.yMMMd().format(dateString) : null;
-        ;
+    return Padding(
+      padding: const EdgeInsets.all(25.0),
+      child: ListView.builder(
+        itemCount: blogs.length,
+        itemBuilder: (context, index) {
+          final blog = blogs[index];
+          debugPrint(blogs.toString());
+          final title = blog.title;
+          final subTitle = blog.subTitle;
+          final body = blog.body;
+          debugPrint('title : ${title.toString()}');
+          debugPrint('subtitle : ${subTitle.toString()}');
+          debugPrint('body : ${body.toString()}');
+          final dateString = blog.dateCreated;
+          final formattedDate =
+              dateString != null ? DateFormat.yMMMd().format(dateString) : null;
 
-        // Check if title, subTitle, and body are not empty
-        if (title!.isEmpty || subTitle!.isEmpty || body!.isEmpty) {
-          // Return an empty container if any of the fields are empty
-          return Container();
-        }
+          // Check if title, subTitle, and body are not empty
+          if (title!.isEmpty || subTitle!.isEmpty || body!.isEmpty) {
+            // Return an empty container if any of the fields are empty
+            return Container();
+          }
 
-        return Card(
-          child: ListTile(
-            leading: Icon(Icons.post_add_rounded),
-            title: Text(
-              title,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w400,
+          return Card(
+            child: ListTile(
+              leading: Icon(Icons.image_rounded),
+              title: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    subTitle,
+                    style: TextStyle(
+                      fontSize: 14,
+                    ),
+                  ),
+                  Text(
+                    '$formattedDate', // Display formatted date
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontStyle: FontStyle.italic,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+              onTap: () {
+                // Navigate to blog details screen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BlogDetailScreen(
+                      title: title,
+                      subTitle: subTitle,
+                      body: body,
+                    ),
+                  ),
+                );
+              },
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.edit, size: 20, color: Colors.blue),
+                    onPressed: () => _navigateToUpdateBlog(context, blog),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.delete, color: Colors.red),
+                    onPressed: () => _confirmDelete(context, blog),
+                  ),
+                ],
               ),
             ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  subTitle,
-                  style: TextStyle(
-                    fontSize: 14,
-                  ),
-                ),
-                Text(
-                  '$formattedDate', // Display formatted date
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontStyle: FontStyle.italic,
-                    color: Colors.grey,
-                  ),
-                ),
-              ],
-            ),
-            onTap: () {
-              // Navigate to blog details screen
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => BlogDetailScreen(
-                    title: title,
-                    subTitle: subTitle,
-                    body: body,
-                  ),
-                ),
-              );
-            },
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.edit, size: 20, color: Colors.blue),
-                  onPressed: () => _navigateToUpdateBlog(context, blog),
-                ),
-                IconButton(
-                    icon: Icon(Icons.delete, color: Colors.red),
-                    onPressed: () {
-                      _graphQLServices.deletePost(id: blog.id!);
-                      _load();
-                    }),
-              ],
-            ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
@@ -163,6 +166,59 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
       MaterialPageRoute(
         builder: (context) => UpdateBlogScreen(blogModel: blog),
       ),
+    );
+  }
+
+  void _confirmDelete(BuildContext context, PostModel blog) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Confirm Delete"),
+          content: Text("Are you sure you want to delete this post?"),
+          actions: [
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.grey[200], // Light grey color
+              ),
+              onPressed: () => Navigator.of(context).pop(),
+              child: Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Text(
+                  "Cancel",
+                  style: TextStyle(
+                    color: Colors.green,
+                  ),
+                ),
+              ),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.red, // Red color
+              ),
+              onPressed: () async {
+                await _graphQLServices.deletePost(id: blog.id!);
+                _load();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text("Post deleted successfully"),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Text(
+                  "Delete",
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
