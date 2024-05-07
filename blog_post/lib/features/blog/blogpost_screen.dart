@@ -84,8 +84,9 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
         debugPrint('subtitle : ${subTitle.toString()}');
         debugPrint('body : ${body.toString()}');
         final dateString = blog.dateCreated;
-        final dateCreated = DateTime.parse(dateString as String);
-        final formattedDate = DateFormat.yMMMd().format(dateCreated);
+        final formattedDate =
+            dateString != null ? DateFormat.yMMMd().format(dateString) : null;
+        ;
 
         // Check if title, subTitle, and body are not empty
         if (title!.isEmpty || subTitle!.isEmpty || body!.isEmpty) {
