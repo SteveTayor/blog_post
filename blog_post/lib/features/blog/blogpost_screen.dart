@@ -64,7 +64,7 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Error loading posts: $e"),
+          content: Text("Error loading posts"),
           backgroundColor: Colors.red,
         ),
       );
@@ -88,13 +88,17 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
         body: _isConnected ? _buildBody() : _buildNoInternetWidget(),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    CreateBlogScreen(), // Replace with your create screen class
-              ),
-            );
+            if (_isConnected) {
+              return;
+            } else {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      CreateBlogScreen(), // Replace with your create screen class
+                ),
+              );
+            }
           },
           label: Text(
             '  Create',
