@@ -45,7 +45,7 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Create Blog',
+          'Create Post',
           style: TextStyle(
             fontSize: 25,
           ),
@@ -54,8 +54,9 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(25.0),
-        child: Column(
+        child: SingleChildScrollView(child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               decoration: BoxDecoration(
@@ -170,9 +171,9 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
                             }
                           },
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.only(left: 8.0, right: 8, top: 8, bottom: 20,),
                       child: Text(
-                        'Create Blog',
+                        'Create Post',
                         style: TextStyle(
                           fontSize: 22,
                         ),
@@ -180,7 +181,7 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
                     ),
                   ),
           ],
-        ),
+        ),),
       ),
     );
   }

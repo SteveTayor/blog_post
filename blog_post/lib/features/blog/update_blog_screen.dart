@@ -61,7 +61,7 @@ class _UpdateBlogScreenState extends State<UpdateBlogScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Update Blog',
+          'Update Post',
           style: TextStyle(
             fontSize: 25,
           ),
@@ -70,8 +70,9 @@ class _UpdateBlogScreenState extends State<UpdateBlogScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
+        child: SingleChildScrollView(child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: _titleController,
@@ -136,7 +137,7 @@ class _UpdateBlogScreenState extends State<UpdateBlogScreen> {
                             }
                           },
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.only(left: 8.0, right: 8, top: 8, bottom: 20,),
                       child: Text(
                         'Update',
                         style: TextStyle(
@@ -146,7 +147,7 @@ class _UpdateBlogScreenState extends State<UpdateBlogScreen> {
                     ),
                   ),
           ],
-        ),
+        ),),
       ),
     );
   }

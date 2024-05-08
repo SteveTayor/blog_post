@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../core/model/post_model.dart';
+import 'update_blog_screen.dart';
+
 class BlogDetailScreen extends StatelessWidget {
   final String title;
   final String subTitle;
@@ -17,14 +20,19 @@ class BlogDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          title,
-          style: TextStyle(
-            fontSize: 25,
+          title: Text(
+            title,
+            style: TextStyle(
+              fontSize: 25,
+            ),
           ),
-        ),
-        centerTitle: true,
-      ),
+          centerTitle: true,
+          actions: [
+            // IconButton(
+            //   icon: Icon(Icons.edit, size: 20, color: Colors.blue),
+            //   onPressed: () => _navigateToUpdateBlog(context, blog),
+            // ),
+          ]),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(25.0),
         child: Column(
@@ -32,7 +40,7 @@ class BlogDetailScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Subtitle: $subTitle',
+              ' $subTitle',
               style: TextStyle(
                 fontWeight: FontWeight.w400,
                 fontSize: 18.0,
@@ -49,7 +57,7 @@ class BlogDetailScreen extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Text(
-                    'Body: $body',
+                    ' $body',
                     style: TextStyle(fontSize: 16.0),
                   ),
                 ),
@@ -71,4 +79,13 @@ class BlogDetailScreen extends StatelessWidget {
       ),
     );
   }
+
+  // void _navigateToUpdateBlog(BuildContext context, PostModel? blog) {
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(
+  //       builder: (context) => UpdateBlogScreen(blogModel: blog),
+  //     ),
+  //   );
+  // }
 }
