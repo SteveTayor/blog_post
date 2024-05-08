@@ -53,7 +53,10 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
         centerTitle: true,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(25.0),
+        padding: const EdgeInsets.only(
+          left: 25.0,
+          right: 25,
+        ),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -138,6 +141,17 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
                       onPressed: _isLoading
                           ? null
                           : () async {
+                              if (_titleController.text.isEmpty ||
+                                  _subTitleController.text.isEmpty ||
+                                  _bodyController.text.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Please fill in all fields'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                                return;
+                              }
                               setState(() {
                                 _isLoading = true;
                               });
@@ -178,8 +192,8 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
                         padding: const EdgeInsets.only(
                           left: 8.0,
                           right: 8,
-                          top: 8,
-                          bottom: 20,
+                          top: 10,
+                          bottom: 10,
                         ),
                         child: Text(
                           'Create Post',
@@ -189,6 +203,7 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
                         ),
                       ),
                     ),
+              SizedBox(height: 50),
             ],
           ),
         ),

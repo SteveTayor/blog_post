@@ -42,8 +42,8 @@ class BlogDetailScreen extends StatelessWidget {
             Text(
               ' $subTitle',
               style: TextStyle(
-                fontWeight: FontWeight.w400,
-                fontSize: 18.0,
+                fontWeight: FontWeight.w500,
+                fontSize: 19.0,
               ),
             ),
             SizedBox(height: 15.0),
@@ -58,7 +58,10 @@ class BlogDetailScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(10.0),
                   child: Text(
                     ' $body',
-                    style: TextStyle(fontSize: 16.0),
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
                 ),
               ),

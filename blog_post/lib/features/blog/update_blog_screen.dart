@@ -77,12 +77,13 @@ class _UpdateBlogScreenState extends State<UpdateBlogScreen> {
             children: [
               TextField(
                 controller: _titleController,
+                textInputAction: TextInputAction.next,
                 decoration: InputDecoration(labelText: 'Title'),
               ),
               SizedBox(height: 16.0),
               TextField(
                 controller: _subTitleController,
-                textInputAction: TextInputAction.newline,
+                maxLines: null,
                 decoration: InputDecoration(labelText: 'Subtitle'),
               ),
               SizedBox(height: 16.0),

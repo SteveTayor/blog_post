@@ -88,8 +88,13 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
         body: _isConnected ? _buildBody() : _buildNoInternetWidget(),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () {
-            if (_isConnected) {
-              return;
+            if (!_isConnected) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("No internet "),
+                  backgroundColor: Colors.red,
+                ),
+              );
             } else {
               Navigator.push(
                 context,
@@ -124,7 +129,7 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
             child: CircularProgressIndicator(),
           )
         : _blogs!.isEmpty
-            ? Center(child: Text('No posts'))
+            ? Center(child: Text('No posts available'))
             : _buildBlogList(context, _blogs!);
   }
 
@@ -157,61 +162,79 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
 
           return Card(
             child: ListTile(
-              // leading: Icon(Icons.image_rounded),
-              title: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w400,
+                // leading: Icon(Icons.image_rounded),
+                title: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
-              ),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    subTitle,
-                    style: TextStyle(
-                      fontSize: 14,
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      subTitle,
+                      style: TextStyle(
+                        fontSize: 14,
+                      ),
                     ),
-                  ),
-                  Text(
-                    '$formattedDate', // Display formatted date
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontStyle: FontStyle.italic,
-                      color: Colors.grey,
+                    Text(
+                      '$formattedDate', // Display formatted date
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
+                        color: Colors.grey,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              onTap: () {
-                // Navigate to blog details screen
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => BlogDetailScreen(
-                      title: title,
-                      subTitle: subTitle,
-                      body: body,
-                      date: formattedDate.toString(),
+                  ],
+                ),
+                onTap: () {
+                  // Navigate to blog details screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BlogDetailScreen(
+                        title: title,
+                        subTitle: subTitle,
+                        body: body,
+                        date: formattedDate.toString(),
+                      ),
                     ),
-                  ),
-                );
-              },
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.edit, size: 20, color: Colors.blue),
-                    onPressed: () => _navigateToUpdateBlog(context, blog),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.delete, color: Colors.red),
-                    onPressed: () => _confirmDelete(context, blog),
-                  ),
-                ],
-              ),
-            ),
+                  );
+                },
+                trailing: PopupMenuButton<String>(
+                  itemBuilder: (BuildContext context) =>
+                      <PopupMenuEntry<String>>[
+                    PopupMenuItem<String>(
+                      value: 'edit',
+                      child: Row(
+                        children: [
+                          Icon(Icons.edit, size: 20, color: Colors.grey),
+                          SizedBox(width: 8),
+                          Text('Edit'),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem<String>(
+                      value: 'delete',
+                      child: Row(
+                        children: [
+                          Icon(Icons.delete, color: Colors.red),
+                          SizedBox(width: 8),
+                          Text('Delete'),
+                        ],
+                      ),
+                    ),
+                  ],
+                  onSelected: (String value) {
+                    if (value == 'edit') {
+                      _navigateToUpdateBlog(context, blog);
+                    } else if (value == 'delete') {
+                      _confirmDelete(context, blog);
+                    }
+                  },
+                )),
           );
         },
       ),
