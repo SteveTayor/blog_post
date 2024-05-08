@@ -70,84 +70,91 @@ class _UpdateBlogScreenState extends State<UpdateBlogScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: _titleController,
-              decoration: InputDecoration(labelText: 'Title'),
-            ),
-            SizedBox(height: 16.0),
-            TextField(
-              controller: _subTitleController,
-              decoration: InputDecoration(labelText: 'Subtitle'),
-            ),
-            SizedBox(height: 16.0),
-            TextField(
-              controller: _bodyController,
-              decoration: InputDecoration(labelText: 'Body'),
-              maxLines: null,
-            ),
-            SizedBox(height: 16.0),
-            _isLoading
-                ? Center(child: CircularProgressIndicator())
-                : ElevatedButton(
-                    onPressed: _isLoading
-                        ? null
-                        : () async {
-                            setState(() {
-                              _isLoading = true;
-                            });
-
-                            try {
-                              await _graphQLServices.updatePost(
-                                id: widget.blogModel!.id.toString(),
-                                title: _titleController.text,
-                                subtitle: _subTitleController.text,
-                                body: _bodyController.text,
-                              );
-
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Post updated successfully',
-                                  ),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
-
-                              // Reload the blog list
-                              await _load();
-
-                              Navigator.pop(context, true);
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Error updating post: $e',
-                                  ),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
-                            } finally {
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _titleController,
+                decoration: InputDecoration(labelText: 'Title'),
+              ),
+              SizedBox(height: 16.0),
+              TextField(
+                controller: _subTitleController,
+                decoration: InputDecoration(labelText: 'Subtitle'),
+              ),
+              SizedBox(height: 16.0),
+              TextField(
+                controller: _bodyController,
+                decoration: InputDecoration(labelText: 'Body'),
+                maxLines: null,
+              ),
+              SizedBox(height: 16.0),
+              _isLoading
+                  ? Center(child: CircularProgressIndicator())
+                  : ElevatedButton(
+                      onPressed: _isLoading
+                          ? null
+                          : () async {
                               setState(() {
-                                _isLoading = false;
+                                _isLoading = true;
                               });
-                            }
-                          },
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 8.0, right: 8, top: 8, bottom: 20,),
-                      child: Text(
-                        'Update',
-                        style: TextStyle(
-                          fontSize: 22,
+
+                              try {
+                                await _graphQLServices.updatePost(
+                                  id: widget.blogModel!.id.toString(),
+                                  title: _titleController.text,
+                                  subtitle: _subTitleController.text,
+                                  body: _bodyController.text,
+                                );
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Post updated successfully',
+                                    ),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+
+                                // Reload the blog list
+                                await _load();
+
+                                Navigator.pop(context, true);
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Error occurred updating post',
+                                    ),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              } finally {
+                                setState(() {
+                                  _isLoading = false;
+                                });
+                              }
+                            },
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          left: 8.0,
+                          right: 8,
+                          top: 8,
+                          bottom: 20,
+                        ),
+                        child: Text(
+                          'Update',
+                          style: TextStyle(
+                            fontSize: 22,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-          ],
-        ),),
+            ],
+          ),
+        ),
       ),
     );
   }

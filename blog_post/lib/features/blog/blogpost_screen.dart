@@ -3,10 +3,13 @@ import 'dart:io';
 import 'package:blog_post/core/client_service/graphQl_service.dart';
 import 'package:blog_post/core/model/post_model.dart';
 import 'package:flutter/material.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+
 import 'package:graphql_flutter/graphql_flutter.dart';
 import '../../core/client_service/graphql_client_service.dart';
 import '../../core/client_service/graphql_queries.dart';
 import '../../core/common/exceptions.dart';
+
 import 'package:intl/intl.dart';
 import 'blog_details_screen.dart';
 import 'create_post_view.dart';
@@ -21,12 +24,20 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
   dynamic _error;
   GraphQLServices _graphQLServices = GraphQLServices();
   Timer? _dataRefreshTimer;
+  bool _isConnected = true;
+
   @override
   initState() {
     super.initState();
     _load();
     _dataRefreshTimer = Timer.periodic(
         Duration(seconds: 5), (_) => _load()); // Refresh every 30 seconds
+    _initConnectivity();
+    Connectivity().onConnectivityChanged.listen((result) {
+      setState(() {
+        _isConnected = result != ConnectivityResult.none;
+      });
+    });
   }
 
   @override
@@ -35,7 +46,17 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
     _dataRefreshTimer?.cancel(); // Cancel the timer when the screen is disposed
   }
 
+  _initConnectivity() async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    setState(() {
+      _isConnected = connectivityResult != ConnectivityResult.none;
+    });
+  }
+
   _load() async {
+    if (!_isConnected) {
+      return;
+    }
     try {
       _blogs = null;
       _blogs = await _graphQLServices.getAllPosts();
@@ -59,12 +80,12 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            'Blog Posts',
+            'Posts',
             style: TextStyle(fontSize: 25, fontWeight: FontWeight.w500),
           ),
           centerTitle: true,
         ),
-        body: _buildBody(),
+        body: _isConnected ? _buildBody() : _buildNoInternetWidget(),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () {
             Navigator.push(
@@ -80,6 +101,15 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
           ),
           icon: Icon(Icons.add),
         ),
+      ),
+    );
+  }
+
+  Widget _buildNoInternetWidget() {
+    return Center(
+      child: Text(
+        'No internet connection',
+        style: TextStyle(fontSize: 20),
       ),
     );
   }

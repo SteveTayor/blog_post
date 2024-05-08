@@ -54,134 +54,141 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(25.0),
-        child: SingleChildScrollView(child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                borderRadius:
-                    BorderRadius.circular(10.0), // Adjust the radius as needed
-                color:
-                    Colors.grey[300], // Adjust the background color as needed
-              ),
-              child: TextField(
-                controller: _titleController,
-                decoration: InputDecoration(
-                  hintText: 'Title',
-                  contentPadding: EdgeInsets.symmetric(
-                      horizontal: 20.0), // Adjust padding as needed
-                  border: InputBorder.none, // Remove the border
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(
+                      10.0), // Adjust the radius as needed
+                  color:
+                      Colors.grey[300], // Adjust the background color as needed
+                ),
+                child: TextField(
+                  controller: _titleController,
+                  decoration: InputDecoration(
+                    hintText: 'Title',
+                    contentPadding: EdgeInsets.symmetric(
+                        horizontal: 20.0), // Adjust padding as needed
+                    border: InputBorder.none, // Remove the border
+                  ),
                 ),
               ),
-            ),
-            // TextField(
-            //   controller: _titleController,
-            //   decoration: InputDecoration(labelText: 'Title'),
-            // ),
-            SizedBox(height: 16.0),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius:
-                    BorderRadius.circular(10.0), // Adjust the radius as needed
-                color:
-                    Colors.grey[200], // Adjust the background color as needed
-              ),
-              child: TextField(
-                controller: _subTitleController,
-                decoration: InputDecoration(
-                  hintText: 'Subtitle',
-                  contentPadding: EdgeInsets.symmetric(
-                      horizontal: 20.0), // Adjust padding as needed
-                  border: InputBorder.none, // Remove the border
+              // TextField(
+              //   controller: _titleController,
+              //   decoration: InputDecoration(labelText: 'Title'),
+              // ),
+              SizedBox(height: 16.0),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(
+                      10.0), // Adjust the radius as needed
+                  color:
+                      Colors.grey[200], // Adjust the background color as needed
+                ),
+                child: TextField(
+                  controller: _subTitleController,
+                  decoration: InputDecoration(
+                    hintText: 'Subtitle',
+                    contentPadding: EdgeInsets.symmetric(
+                        horizontal: 20.0), // Adjust padding as needed
+                    border: InputBorder.none, // Remove the border
+                  ),
                 ),
               ),
-            ),
 
-            // TextField(
-            //   controller: _subTitleController,
-            //   decoration: InputDecoration(labelText: 'Subtitle'),
-            // ),
-            SizedBox(height: 16.0),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius:
-                    BorderRadius.circular(10.0), // Adjust the radius as needed
-                color:
-                    Colors.grey[200], // Adjust the background color as needed
-              ),
-              child: TextField(
-                controller: _bodyController,
-                maxLines: null,
-                decoration: InputDecoration(
-                  hintText: 'message',
-                  contentPadding: EdgeInsets.symmetric(
-                      horizontal: 20.0), // Adjust padding as needed
-                  border: InputBorder.none, // Remove the border
+              // TextField(
+              //   controller: _subTitleController,
+              //   decoration: InputDecoration(labelText: 'Subtitle'),
+              // ),
+              SizedBox(height: 16.0),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(
+                      10.0), // Adjust the radius as needed
+                  color:
+                      Colors.grey[200], // Adjust the background color as needed
+                ),
+                child: TextField(
+                  controller: _bodyController,
+                  maxLines: null,
+                  decoration: InputDecoration(
+                    hintText: 'message',
+                    contentPadding: EdgeInsets.symmetric(
+                        horizontal: 20.0), // Adjust padding as needed
+                    border: InputBorder.none, // Remove the border
+                  ),
                 ),
               ),
-            ),
 
-            // TextField(
-            //   controller: _bodyController,
-            //   decoration: InputDecoration(labelText: 'Message'),
-            //   maxLines: null,
-            // ),
-            SizedBox(height: 30.0),
-            _isLoading
-                ? Center(child: CircularProgressIndicator())
-                : ElevatedButton(
-                    onPressed: _isLoading
-                        ? null
-                        : () async {
-                            setState(() {
-                              _isLoading = true;
-                            });
-                            try {
-                              await _graphQLServices.createPost(
-                                title: _titleController.text,
-                                subtitle: _subTitleController.text,
-                                body: _bodyController.text,
-                              );
-                              await _graphQLServices.getAllPosts();
-                              setState(() {});
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Post created successfully',
-                                  ),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
-                              clear();
-                              Navigator.pop(context, true);
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Error creating post: $e',
-                                  ),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
-                            } finally {
+              // TextField(
+              //   controller: _bodyController,
+              //   decoration: InputDecoration(labelText: 'Message'),
+              //   maxLines: null,
+              // ),
+              SizedBox(height: 30.0),
+              _isLoading
+                  ? Center(child: CircularProgressIndicator())
+                  : ElevatedButton(
+                      onPressed: _isLoading
+                          ? null
+                          : () async {
                               setState(() {
-                                _isLoading = false;
+                                _isLoading = true;
                               });
-                            }
-                          },
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 8.0, right: 8, top: 8, bottom: 20,),
-                      child: Text(
-                        'Create Post',
-                        style: TextStyle(
-                          fontSize: 22,
+                              try {
+                                await _graphQLServices.createPost(
+                                  title: _titleController.text,
+                                  subtitle: _subTitleController.text,
+                                  body: _bodyController.text,
+                                );
+                                await _graphQLServices.getAllPosts();
+                                setState(() {});
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Post created successfully',
+                                    ),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                                clear();
+                                Navigator.pop(context, true);
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Error occurred creating post',
+                                    ),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              } finally {
+                                setState(() {
+                                  _isLoading = false;
+                                });
+                              }
+                            },
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          left: 8.0,
+                          right: 8,
+                          top: 8,
+                          bottom: 20,
+                        ),
+                        child: Text(
+                          'Create Post',
+                          style: TextStyle(
+                            fontSize: 22,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-          ],
-        ),),
+            ],
+          ),
+        ),
       ),
     );
   }
