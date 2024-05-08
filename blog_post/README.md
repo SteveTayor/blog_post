@@ -19,19 +19,24 @@ This project is a simple Flutter application for managing blog posts. It allows 
 To get started with Flutter development and run this project locally, follow these steps:
 
 1. Clone this repository to your local machine:
-   git clone <repository-url>
-   
+   ```sh
+   git clone https://github.com/SteveTayor/blog_post
+   ```
 2. Navigate into the project directory:
+   ```sh
    cd blog_post
-
+   ```
 3. Ensure that you have Flutter installed. If not, follow the instructions [here](https://flutter.dev/docs/get-started/install).
 
 4. Install dependencies by running:
+   ```sh
    flutter pub get
-
+   ```
 5. Connect a device or start an emulator.
 6. Run the app:
+   ```sh
    flutter run
+   ```
 
 ## Contributing
 
