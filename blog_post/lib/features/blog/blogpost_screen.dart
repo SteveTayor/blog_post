@@ -109,7 +109,7 @@ class _BlogPostScreenState extends State<BlogPostScreen> {
     return Center(
       child: Text(
         'No internet connection',
-        style: TextStyle(fontSize: 20),
+        style: TextStyle(fontSize: 18),
       ),
     );
   }

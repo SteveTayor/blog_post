@@ -68,6 +68,7 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
                 ),
                 child: TextField(
                   controller: _titleController,
+                  textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
                     hintText: 'Title',
                     contentPadding: EdgeInsets.symmetric(
@@ -90,6 +91,8 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
                 ),
                 child: TextField(
                   controller: _subTitleController,
+                  maxLines: 2,
+                  textInputAction: TextInputAction.newline,
                   decoration: InputDecoration(
                     hintText: 'Subtitle',
                     contentPadding: EdgeInsets.symmetric(
